@@ -4,12 +4,32 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is an STM32H5 embedded firmware project for the NUCLEO-H533RE development board. The project uses:
+This is a **fireplace controller** built on the STM32H5 platform. The controller manages fireplace operation including temperature monitoring, throttle control, and data logging.
+
+### Development Platform
+- **Board**: NUCLEO-H533RE development board
 - **MCU**: STM32H533RETx (Cortex-M33, LQFP64 package)
 - **Code Generation**: STM32CubeMX (version 6.15.0)
 - **Build System**: CMake with Ninja generator
 - **Toolchain**: ARM GCC (arm-none-eabi-gcc)
 - **HAL**: STM32H5xx HAL drivers
+
+### Hardware Components
+
+**External ICs**:
+- **DS3231**: Real-time clock (RTC) for timekeeping
+- **MAX6675**: Thermocouple-to-digital converter (temperature sensing)
+- **HD44780-compatible display**: LCD character display driver
+
+**Control & Storage**:
+- **2x PWM throttles**: For controlling fireplace dampers/fans
+- **SD card**: Data logging storage
+
+**Communication Interfaces** (to be configured in STM32CubeMX):
+- I2C: For DS3231 RTC
+- SPI: For MAX6675 thermocouple and SD card
+- Parallel interface: For HD44780 display
+- PWM timers: For throttle control
 
 ## Build Commands
 
@@ -120,6 +140,40 @@ target_link_libraries(${CMAKE_PROJECT_NAME}
     my_library
 )
 ```
+
+## Application Architecture
+
+The fireplace controller application should be organized into logical modules:
+
+**Suggested Directory Structure**:
+```
+src/
+  drivers/
+    ds3231.c/h      - DS3231 RTC driver (I2C)
+    max6675.c/h     - MAX6675 thermocouple driver (SPI)
+    hd44780.c/h     - HD44780 display driver
+    sdcard.c/h      - SD card driver (SPI + FatFs)
+  app/
+    temperature.c/h - Temperature monitoring and control logic
+    throttle.c/h    - PWM throttle control
+    logger.c/h      - Data logging to SD card
+    ui.c/h          - User interface (display updates, input handling)
+    rtc.c/h         - RTC time management
+```
+
+**Key Functional Components**:
+- **Temperature Monitoring**: Read thermocouple via MAX6675, implement control algorithms
+- **Throttle Control**: PWM output for damper/fan control based on temperature
+- **Data Logging**: Periodic logging of temperature, time, throttle positions to SD card
+- **Display**: Real-time status display on HD44780 LCD
+- **Timekeeping**: DS3231 for accurate timestamps and scheduling
+
+**Peripheral Requirements**:
+When configuring `fireplace.ioc`:
+- Enable at least 1 I2C peripheral (DS3231)
+- Enable at least 1 SPI peripheral (MAX6675 and SD card, or use separate SPI buses)
+- Enable 2 PWM timer channels (throttle outputs)
+- Configure GPIO for HD44780 parallel interface (typically 6-10 pins)
 
 ## Important Notes
 

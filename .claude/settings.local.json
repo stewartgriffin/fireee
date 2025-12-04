@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git check-ignore:*)",
+      "Bash(for file in \".idea/\" \"CMakeFiles/\" \"fireplace.elf\" \"fireplace.ioc\" \"Core/Src/main.c\")",
+      "Bash(do)",
+      "Bash(if git check-ignore -q \"$file\")",
+      "Bash(then)",
+      "Bash(echo:*)",
+      "Bash(else)",
+      "Bash(fi)",
+      "Bash(done)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
